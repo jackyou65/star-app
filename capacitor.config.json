@@ -1,0 +1,11 @@
+{
+  "appId": "tw.jackyou.star",
+  "appName": "星座運勢",
+  "webDir": "www",
+  "plugins": {
+    "LocalNotifications": {
+      "smallIcon": "ic_stat_notify",
+      "iconColor": "#23407A"
+    }
+  }
+}
