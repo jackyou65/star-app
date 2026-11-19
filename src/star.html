@@ -1,3 +1,4 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <title>星座運勢</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700;900&family=Noto+Sans+TC:wght@400;500;700&display=swap">
@@ -150,6 +151,20 @@ th{color:var(--muted);font-weight:500;font-size:.78rem}
 .pv span{color:var(--muted)}
 @media (max-width:520px){h1{font-size:1.5rem}}
 @media (prefers-reduced-motion:no-preference){.tb,.pick{transition:background .15s,border-color .15s}}
+
+#aout>div{grid-template-columns:minmax(0,1fr)}#aout .trend{max-width:100%}#ask .seg{max-width:100%}
+.askq{display:flex;gap:8px}.askq input{flex:1;min-width:0;font:inherit;font-size:1rem;padding:9px 12px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)}
+.askv{display:grid;grid-template-columns:auto 1fr;gap:6px 18px;align-items:center;border-radius:10px;padding:14px 16px;background:var(--tint)}
+.askv.r1,.askv.r2{background:var(--bad-soft)}.askv.r4,.askv.r5{background:var(--good-soft)}
+.askv .st{color:var(--gold);font-size:1.1rem;letter-spacing:.08em;white-space:nowrap}
+.askv .big{font-family:var(--serif);font-size:1.55rem;font-weight:700;white-space:nowrap}
+.askv.r1 .big,.askv.r2 .big{color:var(--bad)}.askv.r4 .big,.askv.r5 .big{color:var(--good)}
+.asklist{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}
+.asklist>div{border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:var(--bg)}
+.asklist h3{margin:0 0 4px;font-size:.95rem}.askg h3{color:var(--good)}.askb h3{color:var(--bad)}
+.asklist ul{margin:0;padding-left:1.1em;font-size:.86rem;display:grid;gap:3px}
+#ask .pick .stars{justify-self:end;color:var(--gold)}#ask .pick.bad .stars{color:var(--bad)}
+@media (max-width:520px){.askv{grid-template-columns:1fr}}
 </style>
 
 <div class="wrap">
@@ -224,6 +239,20 @@ th{color:var(--muted);font-weight:500;font-size:.78rem}
     <div id="tout" aria-live="polite"></div>
   </section>
 
+  <section class="panel" id="ask">
+    <div class="sec-h"><h2>問事查詢</h2><span class="meta">想做某件事，看看那段時間合不合適</span></div>
+    <div class="askq"><input id="aq" type="text" maxlength="60" enterkeyhint="search" placeholder="例：下個月要考學測，考運好不好？" aria-label="想問的事"><button type="button" class="btn pri" id="ago">查詢</button></div>
+    <p class="meta" style="margin:-4px 0 0">可以直接打字問，例如「近期要開刀合不合適」「12/20 簽約好嗎」「下週面試」，也可以用下方按鈕選。</p>
+    <p class="msg" id="aparse" hidden></p>
+    <div class="f"><span class="lbl">事件</span><div class="seg" id="aev"></div></div>
+    <div class="srow" style="align-items:flex-end;gap:10px 16px">
+      <div class="f"><span class="lbl">時間</span><div class="seg" id="awhen">
+        <button type="button" data-v="soon" aria-pressed="true">近期30天</button><button type="button" data-v="date" aria-pressed="false">指定日期</button><button type="button" data-v="week" aria-pressed="false">指定那週</button><button type="button" data-v="month" aria-pressed="false">指定月份</button></div></div>
+      <div class="f" id="adbox" hidden><label for="ad">日期</label><input id="ad" type="date" min="1901-03-01" max="2099-12-31"></div>
+      <div class="f" id="ambox" hidden><label for="am">月份</label><input id="am" type="month" min="1901-03" max="2099-12"></div>
+    </div>
+    <div id="aout" aria-live="polite"></div>
+  </section>
   <section class="panel" id="matchp">
     <div class="sec-h"><h2>星座配對</h2><span class="meta">選擇兩個人或兩個星座，看彼此的契合度與相處建議</span></div>
     <div class="srow">
@@ -596,7 +625,7 @@ function setSeg(id,v){$(id).querySelectorAll('button').forEach(x=>x.setAttribute
 function showErr(m){$('err').textContent=m;$('err').hidden=!m;}
 function readForm(){return {name:$('nm').value.trim(),date:$('bd').value,time:$('bt').value||'12:00',unknown:$('bu').checked,city:+$('bc').value,dst:$('bdst').checked};}
 function fillForm(o){$('nm').value=o.name||'';$('bd').value=o.date;$('bt').value=o.time||'12:00';$('bu').checked=!!o.unknown;$('bc').value=o.city;$('bdst').checked=!!o.dst;$('bt').disabled=!!o.unknown;}
-function renderAll(){renderNatal();refreshF();renderTiming();renderMatchSel();renderMatch();renderSaved();renderRemindWho();}
+function renderAll(){renderNatal();refreshF();renderTiming();renderMatchSel();renderMatch();renderSaved();renderRemindWho();if(window.askRender)askRender();}
 function refreshF(){setSeg('ftab',kind);$('td').value=isoOf(tgt);renderFortune();}
 function saveLast(){try{localStorage.setItem('star-last',JSON.stringify(N.o));}catch(_){}}
 $('bu').addEventListener('change',()=>{$('bt').disabled=$('bu').checked;});
@@ -719,3 +748,222 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
   if(!o||!o.date)o={name:'',date:'1990-06-15',time:'12:00',unknown:false,city:6,dst:false};
   fillForm(o);N=natalOf(o);renderAll();renderRemind();autoResched();})();
 </script>
+<script>
+// ===== 問事查詢：星座計分 =====
+const EVW={開刀手術:{健康:.7,整體:.3},考試:{考運:.7,事業:.3},面試求職:{事業:.5,人際:.3,考運:.2},升遷加薪:{事業:.7,人際:.3},
+ 簽約:{簽約:.7,財運:.3},開業投資:{財運:.5,事業:.3,簽約:.2},買房搬家:{搬家:.7,財運:.3},感情婚姻:{愛情:.8,人際:.2},懷孕生產:{健康:.6,愛情:.4},
+ 出國旅行:{出行:.8,健康:.2},官司糾紛:{簽約:.4,人際:.3,整體:.3},買車大額:{財運:.5,出行:.3,簽約:.2},拜訪貴人:{人際:.7,整體:.3},其他大事:{整體:1}};
+let ACACHE=new Map(), ANAT=null;
+function stCont(v,c,k){const t=(TH[k]||TH.day)[c]||[-1,0,1,2];
+  if(v<t[0])return Math.max(.6,1.5-(t[0]-v)/Math.max(.1,t[1]-t[0]));
+  for(let i=0;i<3;i++)if(v<t[i+1])return 1.5+i+(v-t[i])/Math.max(.01,t[i+1]-t[i]);
+  return Math.min(5.4,4.5+(v-t[3])/Math.max(.1,t[3]-t[2]));}
+function stDay(t,noMoon){if(ANAT!==N){ANAT=N;ACACHE=new Map();}const key=t+'|'+(noMoon?1:0);if(ACACHE.has(key))return ACACHE.get(key);
+  const P=positions(t),o={r:rawAt(t,N,{noMoon}),P,el:norm(P.月亮.lon-P.太陽.lon)};ACACHE.set(key,o);return o;}
+function stMods(ev,o){const m=[];
+  if(ev==='開刀手術'){if(o.P.火星.retro)m.push([-.3,'火星逆行中，傳統占星不建議安排非緊急的手術']);
+    if(Math.abs(o.el-180)<18)m.push([-.4,'滿月前後，傳統上認為較易出血、腫脹，非緊急手術可避開']);
+    if(o.el<18||o.el>342)m.push([-.2,'新月前後體力較低，術後宜多休養']);}
+  if(ev==='開業投資'||ev==='簽約'||ev==='買車大額'||ev==='買房搬家'){if(o.el>=10&&o.el<=60)m.push([.3,'新月後的漸盈月，適合開始新事物、簽下新約']);}
+  if(ev==='考試'||ev==='面試求職'){if(o.P.水星.retro)m.push([-.2,'水星逆行，答題與表達容易失誤，多檢查一次']);}
+  return m;}
+function stWin(ev,days,thk){const noMoon=false,acc={};TOPICS.forEach(c=>acc[c]=0);const mods={};
+  days.forEach(t=>{const o=stDay(t,noMoon);TOPICS.forEach(c=>acc[c]+=o.r[c]);stMods(ev,o).forEach(([v,txt])=>mods[txt]=(mods[txt]||0)+v);});
+  const n=days.length;let s=0;for(const [c,w] of Object.entries(EVW[ev]))s+=stCont(acc[c]/n,c,thk)*w;
+  for(const k in mods){mods[k]/=n;s+=mods[k];}return {s,mods};}
+const A={
+  ready:()=>!!N,
+  today:()=>ymd(Date.now()),
+  mk:(y,m,d)=>noonOf(y,m,d),
+  md:t=>md(t),
+  dname:t=>`${md(t)}（${WK[new Date(t).getDay()]}）`,
+  evalAsk(ev,sp){
+    const win=stWin(ev,sp.W,sp.kind),r=Math.max(1,Math.min(5,Math.round(win.s)));
+    // 理由：主要面向的行星因素（期間太長時抽樣）
+    const step=sp.W.length>10?3:1,fac={},cats=Object.entries(EVW[ev]).filter(([,w])=>w>=.3).map(([c])=>c),noMoon=sp.W.length>7;
+    for(let i=0;i<sp.W.length;i+=step){cats.forEach(c=>factorsAt(sp.W[i],N,c,{noMoon}).forEach(z=>{const k=z.txt;(fac[k]=fac[k]||{v:0,n:0}).v+=z.v*EVW[ev][c];fac[k].n++;}));}
+    const cnt=Math.ceil(sp.W.length/step),F=Object.entries(fac).map(([k,o])=>[k,o.v/cnt,o.n/cats.length]);
+    for(const k in win.mods)F.push([k,win.mods[k]*2,0]);
+    F.sort((x,y)=>Math.abs(y[1])-Math.abs(x[1]));
+    const lab=z=>z[0]+(cnt>1&&z[2]?(z[2]>=cnt?'（整段期間）':'（期間內部分時間）'):'');
+    const pos=F.filter(z=>z[1]>.03).slice(0,4).map(lab),neg=F.filter(z=>z[1]<-.03).slice(0,4).map(lab);
+    const items=sp.ctx.map(t=>{const o=stWin(ev,[t],'day');const rr=Math.max(1,Math.min(5,Math.round(o.s)));
+      const mk=Object.entries(o.mods).sort((a,b)=>Math.abs(b[1])-Math.abs(a[1]))[0];
+      const P=stDay(t).P,h=M12(P.月亮.sign-N.ss)+1;return {t,s:o.s,r:rr,tip:mk&&(rr>=3?mk[1]>0:mk[1]<0)?mk[0]:`月亮在${SG[P.月亮.sign]}座（你的第${h}宮：${HOUSE[h]}）`};});
+    const t0=Math.min(...sp.W),t1=Math.max(...sp.W),evs=eventsIn(t0,t1,N).filter(e=>e.type!=='ingress'||['水星','金星','火星'].includes(e.p)).slice(0,6);
+    const tps=Object.keys(EVW[ev]).join('、');
+    const extra=(evs.length?`<div><h3>期間天象</h3><ul class="list">${evs.map(e=>`<li>${md(e.t)}　${e.txt}</li>`).join('')}</ul></div>`:'')+
+      `<p class="meta">依「${tps}」等面向，綜合行星行經你的宮位、與本命太陽月亮金星的相位、逆行與月相計算${sp.kind==='day'?'':'（期間平均）'}。</p>`;
+    return {r,s:win.s,pos,neg,items,extra};},
+  bar(x,i){return `<button type="button" class="tb${x.on?' on':''}" data-ai="${i}" aria-label="${x.name} ${STR(x.r)}"><div class="col c${x.r}" style="height:${8+x.r*9}px"></div><span class="l1">${md(x.t)}</span><span class="l2">${WK[new Date(x.t).getDay()]}</span></button>`;},
+  go(t){kind='day';tgt=t;refreshF();$('fortune').scrollIntoView({behavior:'smooth',block:'start'});}
+};
+
+// ===== 問事查詢（共用） =====
+const EVS=[
+ {k:'開刀手術',kw:/開刀|手術|動刀|住院|療程|拔牙|植牙|醫美|微整|切除|化療|放療|麻醉|胃鏡|大腸鏡|內視鏡|雷射|就醫|治療/,
+  g:'身心狀態較穩，適合依醫師安排進行手術或療程，術後恢復也較順。',
+  b:'這段時間身體與運勢的負擔較重；若日期可以選，傳統上會建議避開，已排定就以醫囑為準。',
+  ga:['術前睡飽、依指示禁食，備齊病歷與用藥清單','請家人陪同，術後按時回診'],
+  ba:['可與醫師討論能否改到下方建議的日子','無法更改就把準備做足、保持平常心，術後確實休息'],
+  note:'手術時機請以醫師的專業判斷為準。病情需要時，千萬不要為了挑日子而延誤治療；擇日只適合在醫師給的可選日期中當參考。'},
+ {k:'考試',kw:/學測|統測|指考|分科|會考|國考|高考|普考|特考|考試|考證|證照|檢定|期中考|期末考|段考|模擬考|小考|研究所|多益|托福|雅思|英檢|筆試|術科|駕照|甄試|甄選|考運|應考|聯考/,
+  g:'考運不錯，思緒清楚、臨場發揮佳，容易拿到理想成績。',
+  b:'考運偏弱，容易緊張、粗心或在文書上出錯，更要靠充分準備穩住成績。',
+  ga:['考前一晚早睡，提早到考場熟悉環境','把握這段時間衝刺弱科、多做模擬題'],
+  ba:['准考證、文具、證件前一晚備妥並再檢查一次','答題放慢，先寫會的題目，寫完逐題檢查'],
+  note:'考試日期通常無法更改，運勢只是參考，真正決定成績的是準備程度；建議日子很適合安排模擬考或重點複習。'},
+ {k:'面試求職',kw:/面試|求職|應徵|找工作|換工作|轉職|跳槽|履歷|口試|新工作|報到|離職/,
+  g:'表現容易被看見，適合投履歷、面試或談新工作的條件。',
+  b:'容易表達失常或遇到不合適的機會，重要決定宜多比較、不衝動。',
+  ga:['事先準備自我介紹與作品，提早到場','可主動詢問薪資與職務細節'],
+  ba:['面試前多練習回答，資料多核對一次','不急著答應 offer，條件寫清楚再決定'],note:''},
+ {k:'升遷加薪',kw:/升遷|加薪|升官|考績|調職|晉升|升職|談薪|提案|簡報/,
+  g:'有利於爭取表現，適合找主管談升遷、加薪或提出企劃。',
+  b:'與上司溝通容易卡關，暫時低調把事做好，等待更好的時機再開口。',
+  ga:['準備好具體成果與數據再去談','主動承擔關鍵任務、爭取曝光'],
+  ba:['避免與主管正面衝突','先累積成果，下一個好時機再提'],note:''},
+ {k:'簽約',kw:/簽約|合約|契約|合作|談判|簽字|簽署|協議|洽談|成交|簽/,
+  g:'適合簽約、談合作或送出重要文件，溝通容易達成共識。',
+  b:'文件與溝通容易出狀況，重要合約宜延後或請專業人士審閱。',
+  ga:['條款逐條確認，重要承諾一定寫進合約','可趁勢談更好的條件'],
+  ba:['能延就延，或請律師、代書先看過','避免口頭約定，留下書面紀錄'],note:''},
+ {k:'開業投資',kw:/開店|開業|開幕|創業|投資|買股|股票|基金|設立公司|新事業|開張/,
+  g:'財運與事業運配合得不錯，適合開幕、創業或開始投資計畫。',
+  b:'財務波動較大，容易判斷失準，宜縮小規模或延後再進場。',
+  ga:['先小規模試行，設好停損點','開幕可選下方建議日子，邀請親友捧場'],
+  ba:['不借錢投資、不跟風','保留足夠的周轉金，計畫多找人討論'],
+  note:'投資有賺有賠，運勢不會改變市場風險，請量力而為。'},
+ {k:'買房搬家',kw:/買房|購屋|房子|搬家|入厝|新居|裝潢|裝修|租屋|看屋|交屋|買地|安床/,
+  g:'適合看屋、簽約、搬家、入厝或開始裝修，居家運順。',
+  b:'置產與搬遷容易遇到糾紛或額外花費，宜暫緩或多做確認。',
+  ga:['入厝搬家可選下方建議日子','貸款前先試算還款能力'],
+  ba:['簽約前仔細核對產權與合約條款','搬家前檢查水電、留意漏水與修繕'],note:''},
+ {k:'感情婚姻',kw:/結婚|訂婚|求婚|告白|相親|約會|交往|提親|婚禮|登記|表白|復合|脫單|桃花|見家長|喜酒/,
+  g:'感情運好，適合告白、約會、求婚或辦喜事，容易得到好回應。',
+  b:'感情容易誤會或節外生枝，重要的感情決定宜緩一緩。',
+  ga:['主動表達心意，安排兩人的特別行程','喜事可選下方建議日子'],
+  ba:['多傾聽、少爭辯，有誤會當面說清楚','不急著做承諾，給彼此一點時間'],note:''},
+ {k:'懷孕生產',kw:/懷孕|備孕|生產|生小孩|剖腹|求子|做人|試管|人工受孕|坐月子|生寶寶|待產|產檢/,
+  g:'身心與家運較穩，有利於備孕、迎接新生兒。',
+  b:'身體負擔較大，宜多休息、放慢步調，凡事遵照醫囑。',
+  ga:['規律作息，與伴侶多溝通','按時產檢，與醫師討論身體狀況'],
+  ba:['多休息、避免過勞與熬夜','有任何不適立刻就醫'],
+  note:'生產與剖腹時間請以婦產科醫師的判斷為準，母嬰安全永遠優先於擇日。'},
+ {k:'出國旅行',kw:/出國|旅行|旅遊|出差|出遠門|遠行|自駕|環島|度假|移民|留學|遊學|搭機|機票/,
+  g:'出行運順，適合旅遊、出差或遠行，路上容易有好際遇。',
+  b:'出門容易遇到延誤、失物或小意外，宜減少遠行或多做準備。',
+  ga:['可把重要行程排在下方建議日子','出外多交朋友、把握機會'],
+  ba:['行程預留緩衝，證件財物隨身保管','注意交通安全，騎車開車放慢速度'],note:''},
+ {k:'官司糾紛',kw:/官司|訴訟|開庭|調解|糾紛|提告|被告|告人|仲裁|和解|理賠|法院|律師/,
+  g:'較容易化解糾紛或得到有利結果，適合調解、出庭或處理公文。',
+  b:'是非口舌較重，能調解就先調解，避免硬碰硬。',
+  ga:['備齊證據，與律師充分討論','把握時機提出和解或申訴'],
+  ba:['說話留餘地，不在情緒上做決定','重要文件與期限再三確認'],
+  note:'法律問題請以律師意見為準。'},
+ {k:'買車大額',kw:/買車|換車|購車|交車|大額|貸款|大筆|添購|買家電|買手機|買電腦|分期/,
+  g:'財運與判斷力不錯，適合大額消費、購車或辦貸款。',
+  b:'容易衝動消費或買到不滿意的東西，大額支出宜延後。',
+  ga:['多比價、議價，交車可選建議日子','先試算預算與分期負擔'],
+  ba:['不衝動下單，回家想一晚再決定','合約與保固條款仔細看清楚'],note:''},
+ {k:'拜訪貴人',kw:/拜訪|請託|求人|借錢|借款|求助|幫忙|貴人|見客戶|拜年|請教/,
+  g:'貴人運旺，適合拜訪長輩、請託幫忙或見重要客戶。',
+  b:'他人較難給予助力，凡事多靠自己準備，請託不宜操之過急。',
+  ga:['事先說明需求，帶點小禮物表達心意','把握機會請教前輩'],
+  ba:['不輕信口頭承諾，合作要書面確認','先把自己能做的準備做好'],note:''},
+ {k:'其他大事',kw:null,
+  g:'整體運勢不錯，適合推動重要的事情。',
+  b:'整體運勢偏弱，重要決定宜延後或多做準備。',
+  ga:['把握時機推動計畫','主動爭取資源與協助'],
+  ba:['放慢腳步，重要事項多確認','保持作息規律，情緒來時先暫停'],note:''}];
+const AK=EVS.map(e=>e.k), EVOF=k=>EVS.find(e=>e.k===k)||EVS[EVS.length-1];
+const ADET=['懷孕生產','開刀手術','感情婚姻','考試','面試求職','升遷加薪','官司糾紛','開業投資','買房搬家','買車大額','簽約','出國旅行','拜訪貴人'];
+const ALV=['','宜避開','不太理想','平穩可行','適合','很適合'];
+function cnum(s){if(/^\d+$/.test(s))return +s;const D={零:0,一:1,二:2,兩:2,三:3,四:4,五:5,六:6,七:7,八:8,九:9};
+  if(s==='十')return 10;const i=s.indexOf('十');if(i<0)return D[s]??0;return (i?D[s[0]]:1)*10+(s[i+1]?D[s[i+1]]:0);}
+function askParse(txt,[Y,M,D]){
+  txt=txt.replace(/\s+/g,'');
+  let ev=null;for(const k of ADET){if(EVOF(k).kw.test(txt)){ev=k;break;}}
+  const at=n=>{const d=new Date(Y,M,D+n);return [d.getFullYear(),d.getMonth(),d.getDate()];};
+  const wd=(new Date(Y,M,D).getDay()+6)%7, N='(\\d+|[一二三四五六七八九十兩]+)';let m,w=null;
+  if(m=txt.match(/(\d{4})[\/\-.年](\d{1,2})[\/\-.月](\d{1,2})/))w={mode:'date',d:[+m[1],+m[2]-1,+m[3]]};
+  else if((m=txt.match(/(明年|後年)?(\d{1,2})[\/月](\d{1,2})[日號]?/))||(m=txt.match(/(明年|後年)?([一二三四五六七八九十]{1,3})月([一二三四五六七八九十]{1,3})[日號]/))){
+    const mm=cnum(m[2])-1,dd=cnum(m[3]);let y=Y+(m[1]==='明年'?1:m[1]==='後年'?2:0);if(!m[1]&&new Date(y,mm,dd)<new Date(Y,M,D))y++;w={mode:'date',d:[y,mm,dd]};}
+  else if(/大後天/.test(txt))w={mode:'date',d:at(3)};
+  else if(/後天/.test(txt))w={mode:'date',d:at(2)};
+  else if(/明天|明日/.test(txt))w={mode:'date',d:at(1)};
+  else if(/今天|今日|今晚/.test(txt))w={mode:'date',d:at(0)};
+  else if(m=txt.match(new RegExp(N+'(天|日)(後|之後)')))w={mode:'date',d:at(cnum(m[1]))};
+  else if(m=txt.match(new RegExp(N+'(週|周|個禮拜|個星期|禮拜|星期)(後|之後)')))w={mode:'week',d:at(cnum(m[1])*7)};
+  else if(/下下(個)?(週|周|禮拜|星期)/.test(txt))w={mode:'week',d:at(14-wd)};
+  else if(/下(個)?(週|周|禮拜|星期)/.test(txt))w={mode:'week',d:at(7-wd)};
+  else if(/(這|本)(個)?(週|周|禮拜|星期)|週末|周末/.test(txt))w={mode:'week',d:at(0)};
+  else if(m=txt.match(new RegExp(N+'個月(後|之後)'))){const k=cnum(m[1]);w={mode:'month',m:[Y+Math.floor((M+k)/12),(M+k)%12]};}
+  else if(/下下(個)?月/.test(txt))w={mode:'month',m:[Y+Math.floor((M+2)/12),(M+2)%12]};
+  else if(/下(個)?月/.test(txt))w={mode:'month',m:[Y+Math.floor((M+1)/12),(M+1)%12]};
+  else if(/(這|本)(個)?月/.test(txt))w={mode:'month',m:[Y,M]};
+  else if(m=txt.match(/(明年|後年|今年)?(\d{1,2}|十[一二]?|[一二三四五六七八九])月(?![\d日號])/)){
+    const mm=cnum(m[2])-1;if(mm>=0&&mm<12){let y=Y+(m[1]==='明年'?1:m[1]==='後年'?2:0);if(!m[1]&&mm<M)y++;w={mode:'month',m:[y,mm]};}}
+  if(!w&&/近期|最近|這陣子|近日|即將|快要|這幾天|近來|不久/.test(txt))w={mode:'soon'};
+  return {ev,w};}
+
+let AEV='開刀手術', AW='soon', AITEMS=[];
+const pad2=n=>String(n).padStart(2,'0');
+function askInit(){
+  $('aev').innerHTML=AK.map(k=>`<button type="button" data-v="${k}" aria-pressed="${k===AEV}">${k}</button>`).join('');
+  const [y,m,d]=A.today();$('ad').value=`${y}-${pad2(m+1)}-${pad2(d)}`;$('am').value=`${y}-${pad2(m+1)}`;askSyncUI();}
+function askSyncUI(){setSeg('aev',AEV);setSeg('awhen',AW);$('adbox').hidden=!(AW==='date'||AW==='week');$('ambox').hidden=AW!=='month';}
+function askSpec(){
+  if(AW==='soon'){const [y,m,d]=A.today();const W=[];for(let i=0;i<30;i++)W.push(A.mk(y,m,d+i));
+    return {kind:'month',soon:true,W,ctx:W,title:`未來 30 天（${A.md(W[0])}～${A.md(W[29])}）`};}
+  if(AW==='month'){const v=$('am').value||'';const [y,mo]=v.split('-').map(Number);if(!y||!mo)return {err:'請選擇月份。'};
+    const n=new Date(y,mo,0).getDate(),W=[];for(let i=1;i<=n;i++)W.push(A.mk(y,mo-1,i));return {kind:'month',W,ctx:W,title:`${y} 年 ${mo} 月（整個月）`};}
+  const v=$('ad').value||'';const [y,mo,d]=v.split('-').map(Number);if(!y||!mo||!d)return {err:'請選擇日期。'};
+  if(AW==='week'){const wd=(new Date(y,mo-1,d).getDay()+6)%7,W=[];for(let i=0;i<7;i++)W.push(A.mk(y,mo-1,d-wd+i));
+    return {kind:'week',W,ctx:W,title:`${A.md(W[0])}（一）～${A.md(W[6])}（日）這一週`};}
+  const t=A.mk(y,mo-1,d),[ty,tm,td]=A.today(),t0=A.mk(ty,tm,td),ctx=[];
+  for(let i=-10;i<=10;i++){const x=A.mk(y,mo-1,d+i);if(x>=t0||t<t0)ctx.push(x);}
+  return {kind:'day',W:[t],ctx,title:`${y}/${mo}/${d}（${'日一二三四五六'[new Date(y,mo-1,d).getDay()]}）`};}
+function askRender(){
+  if(!A.ready())return;askSyncUI();
+  const sp=askSpec(),E=EVOF(AEV);if(sp.err){$('aout').innerHTML=`<p class="empty">${sp.err}</p>`;return;}
+  const R=A.evalAsk(AEV,sp);if(R.err){$('aout').innerHTML=`<p class="empty">${R.err}</p>`;AITEMS=[];return;}
+  const on=new Set(sp.W);AITEMS=R.items.map(x=>({...x,on:sp.kind==='day'&&on.has(x.t),name:A.dname(x.t)}));
+  const idx=AITEMS.map((x,i)=>i).sort((a,b)=>AITEMS[b].s-AITEMS[a].s);
+  const tr=R.r;let best=idx.filter(i=>AITEMS[i].r>=3);if(sp.kind==='day')best=best.filter(i=>!AITEMS[i].on&&AITEMS[i].s>R.items.find(x=>on.has(x.t)).s);best=best.slice(0,3);
+  const worst=idx.slice(-2).reverse().filter(i=>AITEMS[i].r<=2&&!AITEMS[i].on);
+  const sum=tr>=4?E.g:tr<=2?E.b:'整體平穩，沒有明顯的吉凶，照計畫進行、把準備做足即可。';
+  const li=a=>a.length?a.map(x=>`<li>${esc(x)}</li>`).join(''):'<li class="meta">無明顯因素</li>';
+  const card=(i,bad)=>{const x=AITEMS[i];return `<button type="button" class="pick${bad?' bad':''}" data-ai="${i}"><span class="when">${x.name}</span><span class="stars">${STR(x.r)}</span><ul><li>${ALV[x.r]}${x.tip?'：'+esc(x.tip):''}</li></ul></button>`;};
+  const unit={day:'這一天',week:'這一週',month:'這段期間'}[sp.kind];
+  $('aout').innerHTML=`<div style="display:grid;gap:12px">
+    <div class="askv r${tr}"><div><div class="st">${STR(tr)}</div><div class="big">${ALV[tr]}</div></div>
+      <div><p class="meta" style="margin:0">${AEV}・${sp.title}</p><p style="margin:.2em 0 0">${sum}</p></div></div>
+    <div class="asklist"><div class="askg"><h3>有利因素</h3><ul>${li(R.pos)}</ul></div><div class="askb"><h3>不利因素</h3><ul>${li(R.neg)}</ul></div></div>
+    ${R.extra||''}
+    <div><h3>${sp.kind==='day'?'前後幾天比較':'每日吉凶'}</h3><div class="trend">${AITEMS.map((x,i)=>A.bar(x,i)).join('')}</div>
+      <p class="meta">長條越高越適合${sp.kind==='day'?'；框起來的是你問的那一天':''}。點長條或卡片可看當天詳細運勢。</p></div>
+    ${best.length?`<h3>${sp.kind==='day'?'附近更好的日子':'建議日子'}</h3><div class="picks">${best.map(i=>card(i,false)).join('')}</div>`:sp.kind==='day'&&tr>=3?'<p class="meta">附近沒有比這天更好的日子，這天就是不錯的選擇。</p>':''}
+    ${worst.length?`<h3>宜避開</h3><div class="picks">${worst.map(i=>card(i,true)).join('')}</div>`:''}
+    <div class="guard"><h3>趨吉避凶</h3><div class="adv">
+      <div><span class="k g">建議</span><span>${(tr>=3?E.ga:E.ba).join('；')}</span></div>
+      <div><span class="k b">提醒</span><span>${(tr>=3?E.ba:E.ga).slice(0,1).join('；')}</span></div></div>
+      ${E.note?`<p class="meta" style="margin-top:8px">⚠ ${E.note}</p>`:''}</div></div>`;}
+function askGo(){
+  const txt=$('aq').value.trim();if(!txt){askRender();return;}
+  const P=askParse(txt,A.today()),msg=[];
+  if(P.ev){AEV=P.ev;msg.push(`事件：${P.ev}`);}else{AEV='其他大事';msg.push('沒辨識出具體事件，先用「其他大事」（整體運勢）判斷，也可以從下方選擇');}
+  if(P.w){AW=P.w.mode;if(P.w.d)$('ad').value=`${P.w.d[0]}-${pad2(P.w.d[1]+1)}-${pad2(P.w.d[2])}`;if(P.w.m)$('am').value=`${P.w.m[0]}-${pad2(P.w.m[1]+1)}`;}
+  msg.push('時間：'+({soon:'近期 30 天',date:'指定日期 '+$('ad').value.replace(/-/g,'/'),week:'指定那週（'+$('ad').value.replace(/-/g,'/')+' 所在週）',month:'指定月份 '+$('am').value.replace('-','/')}[AW])+(P.w?'':'（沒提到時間，沿用目前設定）'));
+  $('aparse').textContent='辨識結果 → '+msg.join('；');$('aparse').hidden=false;askRender();}
+$('ago').addEventListener('click',askGo);
+$('aq').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();askGo();}});
+$('aev').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;AEV=b.dataset.v;$('aparse').hidden=true;askRender();});
+$('awhen').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;AW=b.dataset.v;$('aparse').hidden=true;askRender();});
+$('ad').addEventListener('change',askRender);$('am').addEventListener('change',askRender);
+$('aout').addEventListener('click',e=>{const b=e.target.closest('[data-ai]');if(!b)return;const x=AITEMS[+b.dataset.ai];if(x)A.go(x.t);});
+
+askInit();if(A.ready())askRender();
+</script>
+
+</body></html>
